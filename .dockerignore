@@ -1,0 +1,8 @@
+.git/
+target/
+release/
+device-backups/
+.env
+**/secrets.toml
+magisk-module/bin/mihomo.fallback
+magisk-module/bin/geodata/

@@ -1,0 +1,16 @@
+target/
+release/*.zip
+release/*.zip.sha256
+release/*-source.tar.gz
+release/third-party-sources.sha256
+release/*.spdx.json
+magisk-module/bin/f50mgr
+magisk-module/bin/f50mgr.build-info
+magisk-module/bin/mihomo.fallback
+magisk-module/bin/geodata/
+docs/secrets.toml
+**/secrets.toml
+.env
+device-backups/
+.DS_Store
+*.log

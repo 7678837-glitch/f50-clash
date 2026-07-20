@@ -1,0 +1,68 @@
+schema = 1
+
+[[asset]]
+name = "Mihomo"
+kind = "executable"
+version = "v1.19.24"
+source_commit = "a84724665eb7f989809abe463c05f5723bd24975"
+license = "GPL-3.0-only"
+project_url = "https://github.com/MetaCubeX/mihomo"
+source_archive_url = "https://github.com/MetaCubeX/mihomo/archive/a84724665eb7f989809abe463c05f5723bd24975.tar.gz"
+source_archive_sha256 = "e86b0d24163023c082561ff0b3cf8a592df51b9823b5d83868b79f0bf20c795c"
+upstream_url = "https://github.com/MetaCubeX/mihomo/releases/download/v1.19.24/mihomo-android-arm64-v8-v1.19.24.gz"
+upstream_sha256 = "e45a0b18ea3554cf7f322b59cf2dd21f3e4879dd2db657cbba6a557235e33115"
+installed_path = "magisk-module/bin/mihomo.fallback"
+installed_sha256 = "5915d69c8440267158d7b9fbcb4089d522a3d66e86482dd121200e614c1af68f"
+tracked = false
+modified = false
+
+[[asset]]
+name = "EasyTier core"
+kind = "executable"
+version = "v2.4.5"
+source_commit = "4c4d172e2f0b345b42102969ce4a98e936ca1d81"
+license = "LGPL-3.0-only"
+project_url = "https://github.com/EasyTier/EasyTier"
+source_archive_url = "https://github.com/EasyTier/EasyTier/archive/4c4d172e2f0b345b42102969ce4a98e936ca1d81.tar.gz"
+source_archive_sha256 = "2b13eb34d3946077d0780d421b88ef9dbd722aa51bd0867f80f70ff6d2d3b679"
+upstream_url = "https://github.com/EasyTier/EasyTier/releases/download/v2.4.5/easytier-linux-aarch64-v2.4.5.zip"
+upstream_sha256 = "df08c842f2ab2b8e9922f13c686a1d0f5a5219775cfdabb3e4a8599c6772201f"
+archive_member = "easytier-linux-aarch64/easytier-core"
+installed_path = "magisk-module/bin/easytier.fallback"
+installed_sha256 = "88fd4f8ec30b0766251578cdc82631eddc3710d6dd913547224a4afc34693d36"
+tracked = true
+modified = false
+
+[[asset]]
+name = "EasyTier CLI"
+kind = "executable"
+version = "v2.4.5"
+source_commit = "4c4d172e2f0b345b42102969ce4a98e936ca1d81"
+license = "LGPL-3.0-only"
+project_url = "https://github.com/EasyTier/EasyTier"
+source_archive_url = "https://github.com/EasyTier/EasyTier/archive/4c4d172e2f0b345b42102969ce4a98e936ca1d81.tar.gz"
+source_archive_sha256 = "2b13eb34d3946077d0780d421b88ef9dbd722aa51bd0867f80f70ff6d2d3b679"
+upstream_url = "https://github.com/EasyTier/EasyTier/releases/download/v2.4.5/easytier-linux-aarch64-v2.4.5.zip"
+upstream_sha256 = "df08c842f2ab2b8e9922f13c686a1d0f5a5219775cfdabb3e4a8599c6772201f"
+archive_member = "easytier-linux-aarch64/easytier-cli"
+installed_path = "magisk-module/bin/easytier-cli.fallback"
+installed_sha256 = "8cdabc31ebfb0c2acb2e81a21237ec99f0397e35016055869556fc8338fcd6b8"
+tracked = true
+modified = false
+
+[[asset]]
+name = "MetaCubeXD"
+kind = "static-web"
+version = "v1.269.0"
+source_commit = "6802999f204fdb7a97b41ade2f49693ed5eab8c9"
+license = "MIT"
+project_url = "https://github.com/MetaCubeX/metacubexd"
+source_archive_url = "https://github.com/MetaCubeX/metacubexd/archive/6802999f204fdb7a97b41ade2f49693ed5eab8c9.tar.gz"
+source_archive_sha256 = "c33ad4a92c08202db817f3cf08d1a655d7ce6dff3465480f4553ccd2dd226216"
+upstream_url = "https://github.com/MetaCubeX/metacubexd/releases/download/v1.269.0/compressed-dist.tgz"
+upstream_sha256 = "22704e7bdea257bc69498e790760c6b8098885972273d3dcb3ea647451a1151e"
+installed_path = "magisk-module/assets/zashboard.tar.gz"
+installed_sha256 = "9ffe4792b9b1790e7129fc26efdfc7ddb2ad707acc3321525fcfba957ddfcce2"
+tracked = true
+modified = true
+modification = "config.js: defaultBackendURL 改为 window.location.origin；其余文件与上游归档一致"

@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>f50mgr</title>
+<style>
+:root{color-scheme:light;--bg:#f2f4f7;--surface:#fff;--surface-2:#f7f8fa;--ink:#111827;--muted:#536170;--line:#d8dee6;--line-soft:#e9edf2;--accent:#087443;--danger:#b42318;--danger-button:#b42318;--button:#17202a;--button-text:#f8fafc;--chart-line:#087443;--chart-average:#788695}
+@media(prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0b1118;--surface:#111923;--surface-2:#16212d;--ink:#eef3f8;--muted:#a9b5c2;--line:#2c3947;--line-soft:#202d39;--accent:#55d592;--danger:#ff8d82;--danger-button:#98231b;--button:#e7edf3;--button-text:#111820;--chart-line:#55d592;--chart-average:#8190a0}}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:13px}
+.loginGate{min-height:100vh;display:grid;place-items:center;padding:20px}.loginCard{width:min(100%,360px);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px}.loginCard h1{margin-bottom:8px}.loginCard button{width:100%;margin-top:10px}.loginError{min-height:18px;margin-top:8px;color:var(--danger)}
+main{max-width:1280px;margin:0 auto;padding:10px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:7px}
+h1{font-size:20px;line-height:1.1;letter-spacing:-.02em;margin:0}h2{font-size:13px;line-height:1.2;margin:0;padding:9px 10px;border-bottom:1px solid var(--line);color:var(--ink)}
+.pageHead{grid-column:span 12;display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:2px 2px 3px}.pageHead .sub{margin:0}
+.section{grid-column:span 12;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}.dashboardPair{grid-column:span 12;min-width:0;display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:7px;align-items:start}.dashboardColumn{min-width:0;display:grid;gap:7px;align-content:start}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:0;padding:0 10px 9px}
+.panel{min-width:0;padding:9px 10px 8px 0;background:transparent;border:0;border-radius:0}.panel+.panel{border-left:1px solid var(--line-soft);padding-left:10px}.span3{grid-column:span 3}.span4{grid-column:span 4}.span6{grid-column:span 6}.span8{grid-column:span 8}.span12{grid-column:span 12}.panel.span12{border-left:0;padding-left:0;border-top:1px solid var(--line-soft)}
+.label{font-size:11px;color:var(--muted);margin-bottom:3px}.value{font:700 17px/1.25 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.sub{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.35;overflow-wrap:anywhere}.list{font-size:12px;color:var(--muted);line-height:1.45;margin-top:5px}.list div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.table{width:100%;border-collapse:collapse;font-size:12px;margin-top:3px;table-layout:fixed}.table td{padding:5px 0;border-bottom:1px solid var(--line-soft);vertical-align:top;overflow-wrap:anywhere}.table tr:last-child td{border-bottom:0}.table td:first-child{width:86px;color:var(--ink);font-weight:650}.table td:last-child{text-align:right;color:var(--muted)}
+.tableWrap{overflow-x:auto;-webkit-overflow-scrolling:touch}.peerTable{min-width:980px;table-layout:auto}.peerTable th,.peerTable td{padding:6px 8px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--line-soft);font-variant-numeric:tabular-nums}.peerTable th{font-size:11px;color:var(--muted);font-weight:650}.peerTable td:first-child{width:auto}.peerTable td:last-child{text-align:left}
+.ok{color:var(--accent)}.bad{color:var(--danger)}
+.action,button{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:var(--button);color:var(--button-text);min-height:32px;padding:6px 9px;font:650 12px/1 system-ui,-apple-system,sans-serif;text-decoration:none;cursor:pointer;white-space:nowrap}.action:hover,button:hover{filter:brightness(1.12)}.action:active,button:active{transform:translateY(1px)}button.secondary{background:#475467;color:#fff}button.danger{background:var(--danger-button);color:#fff}button:disabled{opacity:.55;cursor:wait}.action:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+input,textarea{width:100%;border:1px solid var(--line);border-radius:6px;padding:7px 8px;font-size:12px;color:var(--ink);background:var(--surface)}input[type=file]{padding:6px}.form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center}.form+.label{margin-top:9px}.formStatus{min-height:16px}
+.networkHero{grid-column:span 12;background:#17231d;color:#f4faf6;border-radius:10px;padding:11px}.networkHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.networkHero .label,.networkHero .sub{color:#b8c9bf}.networkHero .value{font-size:20px}.networkHero .ok{color:#73dda2}.networkHero .bad{color:#ff9b91}.networkHero button{background:#f4faf6;color:#17231d;margin:0}.diagSteps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin-top:8px}.diagStep{background:#24332b;border-radius:6px;padding:6px 8px;min-width:0}.diagStep span{display:block;color:#aebdb4;font-size:10px;margin-bottom:1px}.diagStep strong{font:650 12px/1.25 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}
+.sparkline{display:block;width:100%;margin-top:4px;border-radius:4px;background:var(--surface-2);color:var(--chart-line)}
+.settings>summary{cursor:pointer;list-style:none;padding:9px 10px;font-size:13px;font-weight:700;color:var(--ink)}.settings>summary::-webkit-details-marker{display:none}.settings>summary::after{content:"打开";float:right;color:var(--muted);font-size:11px;font-weight:500}.settings[open]>summary{border-bottom:1px solid var(--line)}.settings[open]>summary::after{content:"关闭"}.settingsInline{padding:0!important}.settingsInline .settingsBody{padding:9px 0 0}
+@media(max-width:900px){.dashboardPair{grid-template-columns:1fr}.dashboardColumn{display:contents}.mobileOrder1{order:1}.mobileOrder2{order:2}.mobileOrder3{order:3}.mobileOrder4{order:4}.span3,.span4{grid-column:span 4}.overview .span3{grid-column:span 6}.span6{grid-column:span 6}.span8,.span12{grid-column:span 12}}
+@media(max-width:560px){main{padding:7px;gap:6px}.pageHead{padding-top:1px}h1{font-size:18px}.networkHero{padding:9px}.networkHead{gap:8px}.networkHero .value{font-size:18px}.networkHero button{padding:5px 7px}.diagSteps{grid-template-columns:repeat(3,minmax(0,1fr))}.grid{padding:0 8px 8px}.span3,.span4,.span6{grid-column:span 6}.panel{padding:8px 8px 7px 0}.panel+.panel{padding-left:8px}.panel:nth-child(odd){border-left:0;padding-left:0}.value{font-size:15px}.sub{font-size:11px}.table{font-size:11px}.table td:first-child{width:72px}.table td:last-child{text-align:left}.form{grid-template-columns:1fr}.form button{min-height:38px}.action,button{min-height:34px}.overview .actions{flex-wrap:nowrap}.overview .action,.overview button{flex:1;min-width:0;padding:5px 4px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div id="loginGate" class="loginGate">
+  <form id="loginForm" class="loginCard">
+    <h1>F50 网络控制台</h1>
+    <p class="sub">输入 Magisk 安装时显示的设备管理密钥。</p>
+    <label class="label" for="managementKey">管理密钥</label>
+    <input id="managementKey" type="password" autocomplete="current-password" required>
+    <button id="loginButton" type="submit">登录</button>
+    <div id="loginError" class="loginError" aria-live="polite"></div>
+  </form>
+</div>
+<main id="dashboard" hidden>
+<div class="pageHead"><h1>F50 网络控制台</h1><div id="refreshState" class="sub">正在检测</div></div>
+<section class="networkHero">
+<div class="networkHead"><div><div class="label">网络诊断</div><div id="networkDiagnosis" class="value" aria-live="polite" aria-atomic="true">检测中</div><div id="networkAction" class="sub">正在检查蜂窝、DNS、公网和代理链路</div></div><button id="networkRetest" type="button">立即复测</button></div>
+<div class="diagSteps">
+<div class="diagStep"><span>蜂窝拨号</span><strong id="diagPpp">--</strong></div>
+<div class="diagStep"><span>DNS</span><strong id="diagDns">--</strong></div>
+<div class="diagStep"><span>运营商公网</span><strong id="diagDirect">--</strong></div>
+<div class="diagStep"><span>国内链路</span><strong id="diagDomestic">--</strong></div>
+<div class="diagStep"><span>国外链路</span><strong id="diagForeign">--</strong></div>
+<div class="diagStep"><span>透明代理</span><strong id="diagTproxy">--</strong></div>
+</div>
+</section>
+<section class="section overview"><h2>运行状态</h2><div class="grid">
+<div class="panel span3"><div class="label">EasyTier</div><div id="easytier" class="value">--</div><div id="easytierSub" class="sub"></div><div class="actions"><button id="etToggle" type="button">--</button></div></div>
+<div class="panel span3"><div class="label">Mihomo</div><div id="mihomo" class="value">--</div><div id="mihomoPid" class="sub"></div><div class="actions"><button id="mihomoToggle" type="button">--</button><a id="mihomoDashboard" class="action" target="_blank" rel="noopener">打开面板</a></div></div>
+<div class="panel span3"><div class="label">Mihomo API</div><div id="mihomoApi" class="value">--</div><div id="mihomoApiSub" class="sub"></div><div id="mihomoUpdate" class="sub">自动更新：等待首次检查</div></div>
+<div class="panel span3"><div class="label">设备联网</div><div id="deviceNetwork" class="value">--</div><div id="deviceNetworkSub" class="sub"></div></div>
+</div></section>
+<div class="dashboardPair">
+<div class="dashboardColumn">
+<section class="section mobileOrder1"><h2>设备网络</h2><div class="grid">
+<div class="panel span4"><div class="label">信号参数</div><div id="signal" class="value">--</div><div id="signalSub" class="sub"></div></div>
+<div class="panel span4"><div class="label">蜂窝流量</div><div id="cellularSpeed" class="value">--</div><div id="cellularTrafficSub" class="sub"></div></div>
+<div class="panel span4"><div class="label">实时速率</div><div id="speed" class="value">--</div><div id="trafficSub" class="sub"></div></div>
+<div class="panel span12"><div class="label">连接的客户端</div><table id="clientsTable" class="table"></table></div>
+</div></section>
+<section class="section mobileOrder3"><h2>代理概览</h2><div class="grid">
+<div class="panel span4"><div class="label">分流状态</div><div id="proxySummary" class="value">--</div><div id="proxySummarySub" class="sub"></div></div>
+<div class="panel span4"><div class="label">连接</div><div id="connections" class="value">--</div><div id="connectionSub" class="sub"></div></div>
+<div class="panel span4"><div class="label">Mihomo 实时速率</div><div id="mihomoSpeed" class="value">--</div><div id="mihomoTrafficSub" class="sub"></div><div class="actions"><button id="speedtestBtn" type="button">代理测速</button></div><div id="speedtestResult" class="sub formStatus"></div></div>
+</div></section>
+</div>
+<div class="dashboardColumn">
+<section class="section mobileOrder2"><h2>系统资源</h2><div class="grid">
+<div class="panel span4"><div class="label">CPU</div><div id="cpu" class="value">--</div><div id="temperatureSub" class="sub"></div></div>
+<div class="panel span4"><div class="label">内存</div><div id="memory" class="value">--</div><div id="memorySub" class="sub"></div></div>
+<div class="panel span4"><div class="label">剩余存储</div><div id="storage" class="value">--</div><div id="storageSub" class="sub"></div></div>
+</div></section>
+<section class="section mobileOrder4"><details class="settings"><summary>订阅与更新</summary><div class="grid">
+<div class="panel span12"><div class="label">订阅 URL（导入后自动保存）</div><div class="form"><input id="subscriptionUrl" type="url" inputmode="url" autocomplete="off" placeholder="https://"><button id="subscriptionImport" type="button">导入 URL</button></div><div class="actions"><button id="subscriptionRefresh" type="button" class="secondary">使用已保存 URL 一键刷新</button></div><div class="label" style="margin-top:12px">YAML 文件</div><div class="form"><input id="subscriptionFile" type="file" accept=".yaml,.yml,text/yaml,text/x-yaml,application/yaml"><button id="subscriptionUpload" type="button">上传 YAML</button></div><div id="subscriptionStatus" class="sub formStatus"></div></div>
+</div></details></section>
+</div>
+</div>
+<section class="section"><h2>链路质量诊断</h2><div class="grid">
+<div class="panel span4">
+  <div class="label">LAN 延迟（客户端 → F50）</div>
+  <div id="selfRttValue" class="value">--</div>
+  <div id="selfRttSub" class="sub"></div>
+  <svg id="selfRttSpark" class="sparkline" data-sparkline height="40" aria-hidden="true" focusable="false"></svg>
+  <div id="selfRttDiagnose" class="sub" style="margin-top:8px"></div>
+</div>
+<div class="panel span4">
+  <div class="label">国内延迟（via Mihomo 直连）</div>
+  <div id="domesticLatency" class="value">--</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+    <div><div class="label">百度</div><div id="dom1Val" class="sub" style="font-size:15px;font-weight:600;min-height:18px">--</div><svg id="dom1Spark" class="sparkline" data-sparkline height="32" aria-hidden="true" focusable="false"></svg></div>
+    <div><div class="label">腾讯</div><div id="dom2Val" class="sub" style="font-size:15px;font-weight:600;min-height:18px">--</div><svg id="dom2Spark" class="sparkline" data-sparkline height="32" aria-hidden="true" focusable="false"></svg></div>
+  </div>
+</div>
+<div class="panel span4">
+  <div class="label">国外延迟（via Mihomo 代理）</div>
+  <div id="foreignLatency" class="value">--</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+    <div><div class="label">Google</div><div id="fgn1Val" class="sub" style="font-size:15px;font-weight:600;min-height:18px">--</div><svg id="fgn1Spark" class="sparkline" data-sparkline height="32" aria-hidden="true" focusable="false"></svg></div>
+    <div><div class="label">Cloudflare</div><div id="fgn2Val" class="sub" style="font-size:15px;font-weight:600;min-height:18px">--</div><svg id="fgn2Spark" class="sparkline" data-sparkline height="32" aria-hidden="true" focusable="false"></svg></div>
+  </div>
+</div>
+</div></section>
+<div class="dashboardPair">
+<div class="dashboardColumn">
+<section class="section mobileOrder1"><h2>EasyTier mesh VPN</h2><div class="grid">
+<div class="panel span4"><div class="label">虚拟节点</div><div id="etNodeVirtual" class="value">--</div><div id="etNodeVirtualSub" class="sub"></div></div>
+<div class="panel span4"><div class="label">公网 / NAT</div><div id="etNodeNat" class="value">--</div><div id="etNodeNatSub" class="sub"></div></div>
+<div class="panel span4"><div class="label">Peer / 监听</div><div id="etNodePeer" class="value">--</div><div id="etNodePeerSub" class="sub"></div></div>
+<div class="panel span12"><div class="label">EasyTier Peer 信息</div><div class="tableWrap"><table class="table peerTable"><thead><tr><th>IPv4 地址</th><th>主机名</th><th>路由</th><th>延迟（ms）</th><th>丢包率</th><th>下载</th><th>上传</th><th>协议</th><th>NAT 类型</th><th>内核版本</th></tr></thead><tbody id="easytierPeers"></tbody></table></div><div id="easytierPeersSub" class="sub"></div></div>
+<details class="panel span12 settings settingsInline"><summary>EasyTier 配置</summary><div class="settingsBody">
+  <div class="label" style="margin-top:12px">Network name</div>
+  <div class="form"><input id="etNetworkName" type="text" autocomplete="off" placeholder="your-network"><span></span></div>
+  <div class="label">Network secret</div>
+  <div class="form"><input id="etNetworkSecret" type="password" autocomplete="new-password" placeholder="（留空则保持已设置的值）"><span></span></div>
+  <div class="label">本机 IPv4（每台 F50 唯一）</div>
+  <div class="form"><input id="etIpv4" type="text" autocomplete="off" placeholder="10.0.5.3"><span></span></div>
+  <div class="label">Peers（一行一个 URI）</div>
+  <textarea id="etPeers" rows="4" style="width:100%;box-sizing:border-box;border:1px solid #d0d5dd;border-radius:6px;padding:9px 10px;font-size:14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace" placeholder="tcp://relay.example.com:11010/&#10;udp://relay.example.com:11010/"></textarea>
+  <div class="actions">
+    <button id="etSave" type="button">保存配置</button>
+  </div>
+  <div id="easytierStatus" class="sub formStatus"></div>
+</div></details>
+</div></section>
+</div>
+<div class="dashboardColumn">
+<section class="section mobileOrder2"><h2>国内外探测</h2><div class="grid">
+<div class="panel span6"><div class="label">国内站点</div><div id="domesticStatus" class="value">--</div><table id="domesticChecks" class="table"></table></div>
+<div class="panel span6"><div class="label">国外站点</div><div id="foreignStatus" class="value">--</div><table id="foreignChecks" class="table"></table></div>
+</div></section>
+<section class="section mobileOrder3"><h2>分流验证</h2><div class="grid">
+<div class="panel span12"><div class="label">设备出口 IP（直连 vs 代理 - f50mgr 自探测）</div><table id="splitflowTable" class="table"></table><div class="actions"><button id="splitflowBtn" type="button">探测出口 IP</button></div><div id="splitflowStatus" class="sub formStatus"></div></div>
+<div class="panel span12"><div class="label">浏览器分流（WiFi 客户端 → TPROXY → Mihomo）</div><table id="browserProbeTable" class="table"></table><div class="actions"><button id="browserProbeBtn" type="button">浏览器探测</button></div><div id="browserProbeStatus" class="sub formStatus"></div></div>
+</div></section>
+<section class="section mobileOrder4"><h2>设备属性</h2><div class="grid">
+<div class="panel span6"><div class="label">设备信息</div><table id="deviceProps" class="table"></table></div>
+<div class="panel span6"><div class="label">地址信息</div><table id="deviceAddrs" class="table"></table></div>
+</div></section>
+    </div>
+  </div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let csrfToken='';let pollTimer=null;
+function showLogin(message=''){$('dashboard').hidden=true;$('loginGate').hidden=false;$('loginError').textContent=message;csrfToken='';if(pollTimer)clearTimeout(pollTimer);}
+function showDashboard(token){csrfToken=token;$('loginGate').hidden=true;$('dashboard').hidden=false;$('managementKey').value='';pollStatus();}
+async function apiFetch(path,options={}){
+  const headers=new Headers(options.headers||{}),method=(options.method||'GET').toUpperCase();
+  if(!['GET','HEAD'].includes(method))headers.set('X-F50-CSRF',csrfToken);
+  const response=await fetch(path,{...options,headers,credentials:'same-origin'});
+  if(response.status===401){showLogin('会话已失效，请重新登录');throw new Error('会话已失效');}
+  return response;
+}
+$('loginForm').onsubmit=async event=>{
+  event.preventDefault();const button=$('loginButton');button.disabled=true;$('loginError').textContent='';
+  try{
+    const response=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:$('managementKey').value}),cache:'no-store'});
+    const result=await response.json();
+    if(!response.ok)throw new Error(result.error||'认证失败');
+    showDashboard(result.csrf);
+  }catch(error){$('loginError').textContent=error.message||'认证失败';}
+  finally{button.disabled=false;}
+};
+const mihomoHost='192.168.0.1';
+const mihomoPort='14193';
+$('mihomoDashboard').href=`http://${mihomoHost}:${mihomoPort}/ui/`;
+const size=n=>n==null?'--':n>1073741824?(n/1073741824).toFixed(1)+'GB':n>1048576?(n/1048576).toFixed(1)+'MB':(n/1024).toFixed(0)+'KB';
+const val=v=>v==null||v===''?'--':v;
+const policyName=n=>({Proxies:'代理',HKGroup:'香港',AI:'AI',Download:'下载'}[n]||n);
+const setList=(id,items,empty='--')=>{$(id).replaceChildren(...(items&&items.length?items:[empty]).map(text=>{const d=document.createElement('div');d.textContent=text;return d;}));};
+const setRows=(id,items,empty='--')=>{const table=$(id);table.replaceChildren();(items&&items.length?items:[[empty,'']]).forEach(row=>{const tr=document.createElement('tr');row.forEach(text=>{const td=document.createElement('td');td.textContent=text;tr.appendChild(td);});table.appendChild(tr);});};
+async function postAction(path){
+  const res=await apiFetch(path,{method:'POST',cache:'no-store'}).then(r=>r.json());
+  if(!res.ok) alert(res.message||'操作失败');
+  await refresh();
+}
+async function postJson(path,body){
+  const res=await apiFetch(path,{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
+  if(!res.ok) throw new Error(res.message||'操作失败');
+  return res;
+}
+async function postText(path,body){
+  const res=await apiFetch(path,{method:'POST',cache:'no-store',headers:{'Content-Type':'application/yaml; charset=utf-8'},body}).then(r=>r.json());
+  if(!res.ok) throw new Error(res.message||'操作失败');
+  return res;
+}
+$('mihomoToggle').onclick=()=>postAction($('mihomoToggle').dataset.action);
+$('etToggle').onclick=()=>postAction($('etToggle').dataset.action);
+$('speedtestBtn').onclick=async()=>{
+  const btn=$('speedtestBtn'); const res=$('speedtestResult');
+  btn.disabled=true; res.textContent='测速中（最长 20s）...'; res.className='sub formStatus';
+  try{
+    const r=await apiFetch('/api/proxy/speedtest',{method:'POST',cache:'no-store'}).then(r=>r.json());
+    if(r.ok){
+      res.textContent=`${r.mbps} Mbps （${(r.bytes/1024/1024).toFixed(2)} MB / ${r.elapsed_ms} ms 经 mihomo HTTP 14191）`;
+      res.className='sub formStatus ok';
+    } else {
+      res.textContent='失败：'+(r.error||'未知');
+      res.className='sub formStatus bad';
+    }
+  } catch(err){
+    res.textContent='请求失败：'+err.message;
+    res.className='sub formStatus bad';
+  } finally { btn.disabled=false; }
+};
+$('etSave').onclick=async()=>{
+  const button=$('etSave');
+  const status=$('easytierStatus');
+  const peersText=$('etPeers').value;
+  const peers=peersText.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  const payload={
+    network_name:$('etNetworkName').value.trim(),
+    network_secret:$('etNetworkSecret').value, // 空串 → 后端保留旧值
+    ipv4:$('etIpv4').value.trim(),
+    peers
+  };
+  if(!payload.network_name||!payload.ipv4||peers.length===0){
+    status.textContent='network_name、ipv4、peers 必填';
+    status.className='sub formStatus bad';
+    return;
+  }
+  button.disabled=true;
+  status.textContent='保存中';
+  status.className='sub formStatus';
+  try{
+    const res=await postJson('/api/easytier/secrets',payload);
+    status.textContent=res.message;
+    status.className='sub formStatus ok';
+    $('etNetworkSecret').value=''; // 清空，下次保存默认保留旧值
+    setTimeout(refresh, 800);
+  }catch(err){
+    status.textContent=err.message||'保存失败';
+    status.className='sub formStatus bad';
+  }finally{
+    button.disabled=false;
+  }
+};
+$('subscriptionImport').onclick=async()=>{
+  const button=$('subscriptionImport');
+  const status=$('subscriptionStatus');
+  const url=$('subscriptionUrl').value.trim();
+  if(!url){status.textContent='请输入订阅 URL';status.className='sub formStatus bad';return;}
+  button.disabled=true;
+  status.textContent='导入中';
+  status.className='sub formStatus';
+  try{
+    const res=await postJson('/api/subscription/import',{url});
+    status.textContent=res.message;
+    status.className='sub formStatus ok';
+    $('subscriptionUrl').value='';
+    setTimeout(refresh, 3500);
+  }catch(err){
+    status.textContent=err.message||'导入失败';
+    status.className='sub formStatus bad';
+  }finally{
+    button.disabled=false;
+  }
+};
+$('subscriptionUpload').onclick=async()=>{
+  const button=$('subscriptionUpload');
+  const status=$('subscriptionStatus');
+  const file=$('subscriptionFile').files[0];
+  if(!file){status.textContent='请选择 YAML 文件';status.className='sub formStatus bad';return;}
+  if(file.size>2*1024*1024){status.textContent='订阅文件不能超过 2MB';status.className='sub formStatus bad';return;}
+  button.disabled=true;
+  status.textContent='上传中';
+  status.className='sub formStatus';
+  try{
+    const res=await postText('/api/subscription/upload',await file.text());
+    status.textContent=res.message;
+    status.className='sub formStatus ok';
+    $('subscriptionFile').value='';
+    setTimeout(refresh, 3500);
+  }catch(err){
+    status.textContent=err.message||'上传失败';
+    status.className='sub formStatus bad';
+  }finally{
+    button.disabled=false;
+  }
+};
+let subscriptionUrlHydrated=false;
+async function loadSubscriptionConfig(){
+  if(subscriptionUrlHydrated) return;
+  try{
+    const r=await apiFetch('/api/subscription/config',{cache:'no-store'}).then(r=>r.json());
+    if(r.configured) $('subscriptionUrl').placeholder=`已配置 ${r.display}，输入新 URL 可替换`;
+    subscriptionUrlHydrated=true;
+  }catch(_){}
+}
+$('subscriptionRefresh').onclick=async()=>{
+  const btn=$('subscriptionRefresh'),status=$('subscriptionStatus');
+  btn.disabled=true;status.textContent='更新中（最长 35s）...';status.className='sub formStatus';
+  try{
+    const r=await apiFetch('/api/subscription/refresh',{method:'POST',cache:'no-store'}).then(r=>r.json());
+    if(r.ok){status.textContent=r.message;status.className='sub formStatus ok';setTimeout(refresh,3500);}
+    else{status.textContent='失败：'+(r.message||'未知');status.className='sub formStatus bad';}
+  }catch(err){status.textContent='请求失败：'+err.message;status.className='sub formStatus bad';}
+  finally{btn.disabled=false;}
+};
+let etFormHydrated=false;
+async function loadEasyTierSecrets(){
+  if(etFormHydrated) return;
+  try{
+    const r=await apiFetch('/api/easytier/secrets',{cache:'no-store'}).then(r=>r.json());
+    if(r.ok&&r.configured&&r.secrets){
+      $('etNetworkName').value=r.secrets.network_name||'';
+      $('etIpv4').value=r.secrets.ipv4||'';
+      $('etPeers').value=(r.secrets.peers||[]).join('\n');
+      $('etNetworkSecret').placeholder=r.secrets.has_secret?'（已设置，留空保持不变）':'输入新密码';
+    }
+  }catch(_){}
+  etFormHydrated=true;
+}
+// 自检 ring buffer：客户端测的端到端 RTT + 服务端处理耗时
+const SELF_RTT_BUF=[]; const SELF_RTT_MAX=60;
+const SITE_BUFS={baidu:[],qq:[],google:[],cloudflare:[]}; const SITE_BUF_MAX=60;
+function pushSample(buffer,value,max){
+  buffer.push(Number.isFinite(value)?value:null);
+  if(buffer.length>max) buffer.shift();
+}
+function statsOf(arr){
+  const values=arr.filter(Number.isFinite);
+  if(!values.length) return null;
+  const sorted=[...values].sort((a,b)=>a-b);
+  const sum=values.reduce((a,b)=>a+b,0);
+  return {cur:arr[arr.length-1],avg:Math.round(sum/values.length),p95:sorted[Math.min(sorted.length-1,Math.floor(sorted.length*0.95))],min:sorted[0],max:sorted[sorted.length-1]};
+}
+function drawSpark(svg,arr){
+  const w=svg.clientWidth||300, h=48;
+  svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  svg.replaceChildren();
+  const values=arr.filter(Number.isFinite);
+  if(values.length<2) return;
+  const max=Math.max(...values,1), min=Math.min(...values);
+  const range=Math.max(max-min,1);
+  const step=w/Math.max(arr.length-1,1);
+  let path='',connected=false;
+  arr.forEach((v,i)=>{
+    if(!Number.isFinite(v)){connected=false;return;}
+    const x=i*step,y=h-((v-min)/range)*(h-4)-2;
+    path+=(connected?'L':'M')+x.toFixed(1)+','+y.toFixed(1);
+    connected=true;
+  });
+  const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+  p.setAttribute('d',path); p.setAttribute('fill','none'); p.setAttribute('stroke','currentColor'); p.setAttribute('stroke-width','1.5'); p.setAttribute('vector-effect','non-scaling-stroke');
+  svg.appendChild(p);
+  // 平均线
+  const avg=values.reduce((a,b)=>a+b,0)/values.length;
+  const ay=h-((avg-min)/range)*(h-4)-2;
+  const al=document.createElementNS('http://www.w3.org/2000/svg','line');
+  al.setAttribute('x1',0); al.setAttribute('y1',ay); al.setAttribute('x2',w); al.setAttribute('y2',ay);
+  al.setAttribute('stroke','var(--chart-average)'); al.setAttribute('stroke-dasharray','2,2'); al.setAttribute('stroke-width','1'); al.setAttribute('vector-effect','non-scaling-stroke');
+  svg.appendChild(al);
+}
+async function pingOnce(){
+  // 用 /api/ping（轻量，~1ms 响应）测真实 LAN RTT
+  const t0=performance.now();
+  try { await apiFetch('/api/ping',{cache:'no-store'}); } catch(_){ return null; }
+  return Math.round(performance.now()-t0);
+}
+let refreshPromise=null;
+async function refresh(){
+  if(refreshPromise) return refreshPromise;
+  refreshPromise=refreshImpl();
+  try{return await refreshPromise;}finally{refreshPromise=null;}
+}
+async function refreshImpl(){
+  $('refreshState').textContent='检测中';
+  const lanRtt=await pingOnce();
+  const [s,etNode]=await Promise.all([
+    apiFetch('/api/status',{cache:'no-store'}).then(r=>r.json()),
+    apiFetch('/api/easytier/status',{cache:'no-store'}).then(r=>r.json()).catch(err=>({available:false,stale:false,error:err.message,listeners:[]}))
+  ]);
+  const nd=s.network_diagnosis;
+  if(nd){
+    if($('networkDiagnosis').textContent!==nd.summary) $('networkDiagnosis').textContent=nd.summary;
+    $('networkDiagnosis').className='value '+(nd.level==='ok'?'ok':'bad');
+    $('networkAction').textContent=nd.action+(nd.direct_latency_ms!=null?` / 公网探测 ${nd.direct_latency_ms} ms`: '');
+    const diag=(id,ok,unknown=false)=>{$(id).textContent=unknown?'未知':(ok?'正常':'异常');$(id).className=ok?'ok':'bad';};
+    diag('diagPpp',nd.ppp_ok===true,nd.ppp_ok==null);
+    diag('diagDns',nd.dns_ok);
+    diag('diagDirect',nd.direct_ok);
+    diag('diagDomestic',nd.domestic_ok);
+    diag('diagForeign',nd.foreign_ok);
+    diag('diagTproxy',nd.tproxy_active);
+  }
+  $('refreshState').textContent=`v${s.version} · 刚刚更新`;
+  pushSample(SELF_RTT_BUF,lanRtt,SELF_RTT_MAX);
+  const st=statsOf(SELF_RTT_BUF);
+  if(st){
+    const currentOk=Number.isFinite(st.cur);
+    $('selfRttValue').textContent=currentOk?`${st.cur} ms`:'超时';
+    $('selfRttValue').className='value '+(currentOk&&st.cur<200?'ok':'bad');
+    const proc=s.server_processing_ms||0;
+    $('selfRttSub').textContent=`LAN RTT 平均 ${st.avg} ms · P95 ${st.p95} ms · /api/status 处理 ${proc} ms（含国内外站点探测）`;
+    drawSpark($('selfRttSpark'),SELF_RTT_BUF);
+    let diag='';
+    const ph=s.proxy_health;
+    if(!currentOk) diag+='⚠️ 客户端 → F50 本轮探测超时；';
+    else if(st.cur>200) diag+=`⚠️ 客户端 → F50 LAN RTT ${st.cur}ms 偏高，检查 WiFi 信号 / LAN 拥挤；`;
+    if(proc>3000) diag+=`⚠️ /api/status 处理 ${proc}ms 慢，可能 daemon CPU 高或 proxy_health 站点超时；`;
+    if(ph && !ph.foreign_ok) diag+='⚠️ F50 → 海外代理探测失败；';
+    if(ph && !ph.domestic_ok) diag+='⚠️ F50 → 国内站点探测失败，可能 4G 限速 / 断网；';
+    if(!diag) diag=`✅ 客户端 ↔ F50 (${st.cur}ms) + F50 ↔ 出口 全段链路正常`+(st.cur<30?'（极佳）':'');
+    $('selfRttDiagnose').textContent=diag;
+    $('selfRttDiagnose').className='sub '+(diag.includes('⚠️')?'bad':'ok');
+  }
+  // 国内/国外延迟面板（数据来自 proxy_health.sites，各站点带 sparkline）
+  {
+    const ph=s.proxy_health;
+    {
+      const sites=ph&&ph.sites?ph.sites:[];
+      const avgMs=arr=>{const v=arr.filter(x=>x.ok&&x.latency_ms!=null).map(x=>x.latency_ms);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):null;};
+      const domSites=sites.filter(x=>x.region==='国内');
+      const fgnSites=sites.filter(x=>x.region==='国外');
+      const domAvg=avgMs(domSites),fgnAvg=avgMs(fgnSites);
+      $('domesticLatency').textContent=domAvg!=null?`${domAvg} ms`:(ph&&ph.domestic_ok?'--':'异常');
+      $('domesticLatency').className='value '+(ph&&ph.domestic_ok?'ok':'bad');
+      $('foreignLatency').textContent=fgnAvg!=null?`${fgnAvg} ms`:(ph&&ph.foreign_ok?'--':'异常');
+      $('foreignLatency').className='value '+(ph&&ph.foreign_ok?'ok':'bad');
+      const updSite=(name,valId,sparkId,buf)=>{
+        const site=sites.find(x=>x.name===name);
+        const sample=site&&site.ok&&Number.isFinite(site.latency_ms)?site.latency_ms:null;
+        pushSample(buf,sample,SITE_BUF_MAX);
+        $(valId).textContent=site?(site.ok?`${site.latency_ms} ms`:(site.error||'异常')):'无数据';
+        $(valId).className='sub '+(site&&site.ok?'ok':'bad');
+        drawSpark($(sparkId),buf);
+      };
+      updSite('百度','dom1Val','dom1Spark',SITE_BUFS.baidu);
+      updSite('腾讯','dom2Val','dom2Spark',SITE_BUFS.qq);
+      updSite('Google','fgn1Val','fgn1Spark',SITE_BUFS.google);
+      updSite('Cloudflare','fgn2Val','fgn2Spark',SITE_BUFS.cloudflare);
+    }
+  }
+  loadSubscriptionConfig();
+  loadEasyTierSecrets();
+  $('mihomo').textContent=s.mihomo.running?'运行中':'停止';
+  $('mihomo').className='value '+(s.mihomo.running?'ok':'bad');
+  $('mihomoPid').textContent=`${s.mihomo_auto_start?'开机启动':'手动关闭'} / `+(s.mihomo.pid?`pid ${s.mihomo.pid} / ${mihomoHost}:${mihomoPort}`:`${mihomoHost}:${mihomoPort}`);
+  $('mihomoToggle').textContent=s.mihomo.running||s.mihomo_auto_start?'停止 Mihomo':'启动 Mihomo';
+  $('mihomoToggle').className=s.mihomo.running||s.mihomo_auto_start?'danger':'secondary';
+  $('mihomoToggle').dataset.action=s.mihomo.running||s.mihomo_auto_start?'/api/mihomo/stop':'/api/mihomo/start';
+  const m=s.mihomo_api;
+  $('mihomoApi').textContent=m&&m.available?'可用':'不可用';
+  $('mihomoApi').className='value '+(m&&m.available?'ok':'bad');
+  $('mihomoApiSub').textContent=m&&m.available?`${m.version||''} / ${m.mode||'--'} / ${m.bind_address||mihomoHost}`:(m&&m.error?m.error:'');
+  const u=s.mihomo_update||{};
+  const updateLabels={waiting:'等待首次检查',disabled_no_trust_root:'待配置离线签名信任根',checking:'检查中',pending:'候选已就绪',activating:'验证新版本',up_to_date:'已是最新',failed:'失败'};
+  const updateVersion=u.available_version||u.current_version||'';
+  $('mihomoUpdate').textContent=`自动更新：${updateLabels[u.state]||u.state||'未知'}${updateVersion?` · ${updateVersion}`:''}${u.source?` · ${u.source}`:''}${u.error?` · ${u.error}`:''}`;
+  $('mihomoUpdate').className='sub '+(u.state==='failed'?'bad':(u.state==='up_to_date'?'ok':''));
+  const d=s.device;
+  $('deviceNetwork').textContent=d&&d.available?`${val(d.network_provider)} ${val(d.network_type)}`:'不可用';
+  $('deviceNetwork').className='value '+(d&&d.available?'ok':'bad');
+  $('deviceNetworkSub').textContent=d&&d.available?`WiFi ${val(d.wifi_clients)} / 信号 ${val(d.signal_bars)} / ${val(d.ppp_status)}`:(d&&d.error?d.error:'');
+  $('signal').textContent=d&&d.available?(d.rsrp!=null?`${d.rsrp} dBm`:(d.signal_bars!=null?`${d.signal_bars} 格`:'--')):'--';
+  $('signalSub').textContent=d&&d.available?[d.rsrp!=null?`RSRP ${d.rsrp}`:null,d.sinr!=null?`SINR ${d.sinr}`:null,d.rsrq!=null?`RSRQ ${d.rsrq}`:null,d.band?`N${d.band}`:null,d.frequency||null,d.pci?`PCI ${d.pci}`:null].filter(Boolean).join(' · '):'';
+  $('signal').className='value '+(d&&d.available?(d.rsrp!=null||d.signal_bars!=null?'ok':''):'bad');
+  $('cellularSpeed').textContent=d?`↓ ${size(d.rx_bytes_per_sec)}/s ↑ ${size(d.tx_bytes_per_sec)}/s`:'--';
+  // 月度流量优先用 cellular_monthly（/proc/net/dev sipa_eth0 自计数，跨重启 + 月初复位），
+  // 兜底显示 ZTE goform 的（已修正字段视角倒置）。
+  const cm=s.cellular_monthly;
+  if(cm && !cm.error){
+    $('cellularTrafficSub').textContent=`本月 ↓ ${size(cm.rx_bytes)} ↑ ${size(cm.tx_bytes)} / 合计 ${size((cm.rx_bytes||0)+(cm.tx_bytes||0))} （${cm.period}，本机计数器）`;
+  } else {
+    $('cellularTrafficSub').textContent=d?`本月 ↓ ${size(d.monthly_rx_bytes)} ↑ ${size(d.monthly_tx_bytes)} / 合计 ${size((d.monthly_rx_bytes||0)+(d.monthly_tx_bytes||0))} （ZTE 报告）`:'';
+  }
+  setRows('deviceProps',d?[['固件',val(d.firmware)],['基站ID',val(d.cell_id)]]:null);
+  setRows('deviceAddrs',d?[['LAN IP',val(d.lan_ip)],['IPv6',val(d.ipv6_wan_ip)],['MAC',val(d.mac_address)],['数据源',val(d.source)]]:null);
+  const primary=m&&m.groups?m.groups.find(g=>g.name==='Proxies'):null;
+  const h=s.proxy_health;
+  $('proxySummary').textContent=h?h.summary:'--';
+  $('proxySummary').className='value '+(h&&h.domestic_ok&&h.foreign_ok?'ok':'bad');
+  $('proxySummarySub').textContent=primary&&primary.selected?`当前代理: ${primary.selected}`:'通过 Mihomo HTTP 代理探测';
+  $('domesticStatus').textContent=h&&h.domestic_ok?'正常':'异常';
+  $('domesticStatus').className='value '+(h&&h.domestic_ok?'ok':'bad');
+  $('foreignStatus').textContent=h&&h.foreign_ok?'正常':'异常';
+  $('foreignStatus').className='value '+(h&&h.foreign_ok?'ok':'bad');
+  const checkResult=x=>x.ok?`正常 · ${x.latency_ms}ms · HTTP ${x.status}`:(x.status?`异常 · ${x.latency_ms||'--'}ms · HTTP ${x.status}`:(x.error||'失败'));
+  const checkRows=(region)=>h&&h.sites?h.sites.filter(x=>x.region===region).map(x=>[x.name,checkResult(x)]):null;
+  setRows('domesticChecks',checkRows('国内'));
+  setRows('foreignChecks',checkRows('国外'));
+  $('connections').textContent=m&&m.connection_count!=null?m.connection_count:'--';
+  $('connectionSub').textContent=m?`内存 ${size(m.memory_bytes)}`:'';
+  $('mihomoSpeed').textContent=m?`↓ ${size(m.download_bytes_per_sec)}/s ↑ ${size(m.upload_bytes_per_sec)}/s`:'--';
+  $('mihomoTrafficSub').textContent=m?`累计 ↓ ${size(m.download_total_bytes)} ↑ ${size(m.upload_total_bytes)}`:'';
+  $('cpu').textContent=s.cpu?`${s.cpu.usage_percent}%`:'--';
+  $('temperatureSub').textContent=(s.temperatures||[]).map(t=>`${t.label} ${t.celsius.toFixed(1)}°C`).join(' · ');
+  $('memory').textContent=s.memory?`${s.memory.used_percent}%`:'--';
+  $('memorySub').textContent=s.memory?`${size(s.memory.available_bytes)} 可用 / ${size(s.memory.total_bytes)}`:'';
+  $('speed').textContent=s.traffic?`↓ ${size(s.traffic.rx_bytes_per_sec)}/s ↑ ${size(s.traffic.tx_bytes_per_sec)}/s`:'--';
+  $('trafficSub').textContent=s.traffic?`累计 ↓ ${size(s.traffic.rx_total_bytes)} ↑ ${size(s.traffic.tx_total_bytes)}`:'';
+  $('storage').textContent=s.storage?size(s.storage.available_bytes):'--';
+  $('storageSub').textContent=s.storage?`${s.storage.used_percent}% 已用 / ${size(s.storage.total_bytes)}`:'';
+  // 连接的客户端列表
+  const cs=s.clients||[];
+  setRows('clientsTable', cs.length?cs.map(c=>[`${c.hostname||'(未知)'}`, `${c.ip} · ${c.mac.slice(-8)} · ${c.link==='lan'?'USB/有线':'WiFi'}`]):null, '当前无客户端');
+  const et=s.easytier;
+  const etOn=s.easytier_enabled;
+  const etRunning=et&&et.running;
+  $('easytier').textContent=etRunning?'运行中':(etOn?'启用中（watchdog 拉起中或 secrets 不完整）':'已停止');
+  $('easytier').className='value '+(etRunning?'ok':(etOn?'bad':''));
+  $('easytierSub').textContent=etRunning?`pid ${et.pid} / RPC 127.0.0.1:15888`:(et&&et.error?et.error:(etOn?'若长时间停留请检查 secrets 是否完整、peers 是否可达':'尚未启用'));
+  // 按钮按 enabled（持久化开关）切换，因为 stop 也要把 enabled 写 false 防止 watchdog 自动重启
+  $('etToggle').textContent=etOn?(etRunning?'停止 EasyTier':'禁用自动启动'):'启动 EasyTier';
+  $('etToggle').className=etOn?'danger':'secondary';
+  $('etToggle').dataset.action=etOn?'/api/easytier/stop':'/api/easytier/start';
+  const peer=etNode.peer_id?(etNode.peer_id.length>12?`${etNode.peer_id.slice(0,6)}…${etNode.peer_id.slice(-4)}`:etNode.peer_id):'--';
+  const listeners=etNode.listeners||[];
+  const listenerKinds=listeners.reduce((acc,item)=>{const kind=item.split(':',1)[0];acc[kind]=(acc[kind]||0)+1;return acc;},{});
+  const listenerSummary=Object.entries(listenerKinds).map(([kind,count])=>`${kind.toUpperCase()} ${count}`).join(' · ');
+  const updated=etNode.updated_at_unix_ms?new Date(etNode.updated_at_unix_ms).toLocaleTimeString('zh-CN',{hour12:false}):'--';
+  $('etNodeVirtual').textContent=etNode.available?val(etNode.virtual_ip):'不可用';
+  $('etNodeVirtual').className='value '+(etNode.available?'ok':'bad');
+  $('etNodeVirtualSub').textContent=etNode.available?`${val(etNode.hostname)} · ${val(etNode.version)}`:(etNode.error||'EasyTier 状态不可用');
+  $('etNodeNat').textContent=etNode.available?val(etNode.udp_nat_type):'--';
+  $('etNodeNat').className='value '+(etNode.available?'ok':'bad');
+  $('etNodeNatSub').textContent=etNode.available?`公网 ${val(etNode.public_ip)}`:(etNode.error||'');
+  $('etNodePeer').textContent=peer;
+  $('etNodePeer').className='value '+(etNode.available?'ok':'bad');
+  $('etNodePeerSub').textContent=etNode.available?`${listenerSummary||'无公网监听'} · 更新 ${updated}${etNode.stale?'（旧快照）':''}`:(etNode.error||'');
+  const peerRows=(etNode.peers||[]).map(item=>[
+    item.cidr||'--',item.hostname||'--',item.route||'--',item.latency_ms||'-',item.loss_rate||'-',item.rx_bytes||'-',item.tx_bytes||'-',item.tunnel_protocol||'-',item.nat_type||'Unknown',item.version||'unknown'
+  ]);
+  setRows('easytierPeers',peerRows.length?peerRows:[[etNode.peers_error||etNode.error||'暂无 Peer 数据','','','','','','','','','']]);
+  $('easytierPeersSub').textContent=etNode.stale?'显示缓存数据，EasyTier CLI 本轮刷新失败':(etNode.peers_error?`Peer 刷新失败：${etNode.peers_error}`:`${peerRows.length} 个节点 · 每 15 秒刷新`);
+  $('easytierPeersSub').className='sub '+(etNode.stale||etNode.peers_error?'bad':'');
+}
+$('networkRetest').onclick=async()=>{
+  const button=$('networkRetest');
+  button.disabled=true;
+  button.textContent='检测中';
+  try{await refresh();}catch(err){$('networkAction').textContent='复测失败: '+err.message;$('networkDiagnosis').textContent='无法完成诊断';}
+  finally{button.disabled=false;button.textContent='立即复测';}
+};
+// 分流验证 — 设备侧
+$('splitflowBtn').onclick=async()=>{
+  const btn=$('splitflowBtn'),st=$('splitflowStatus');
+  btn.disabled=true;st.textContent='探测中（最长 25s）...';st.className='sub formStatus';
+  try{
+    const r=await apiFetch('/api/diag/splitflow',{method:'POST',cache:'no-store'}).then(r=>r.json());
+    if(r.ok){
+      const rows=[];
+      if(r.direct) rows.push(['直连出口',r.direct.ip+(r.direct.geo?' · '+r.direct.geo:'')]);
+      if(r.proxy) rows.push(['代理出口',r.proxy.ip+(r.proxy.geo?' · '+r.proxy.geo:'')]);
+      setRows('splitflowTable',rows.length?rows:null);
+      const same=r.direct&&r.proxy&&r.direct.ip===r.proxy.ip;
+      st.textContent=same?'⚠️ 直连与代理 IP 相同，代理可能未生效':'探测完成';
+      st.className='sub formStatus '+(same?'bad':'ok');
+    }else{st.textContent='失败：'+(r.error||'未知');st.className='sub formStatus bad';}
+  }catch(err){st.textContent='请求失败：'+err.message;st.className='sub formStatus bad';}
+  finally{btn.disabled=false;}
+};
+// 分流验证 — 浏览器侧（WiFi 客户端经 TPROXY 发起，国外域走代理、国内域走直连）
+const BROWSER_PROBES=[
+  {name:'ipinfo.io（国外域）',url:'https://ipinfo.io/json',parse:r=>r.ip+(r.org?' · '+r.org:'')+(r.country?' ('+r.country+')':'')},
+  {name:'myip.ipip.net（国内域）',url:'http://myip.ipip.net/json',parse:r=>{if(!r.data)return'？';const loc=r.data.location||[];const geo=[loc[1],loc[4]].filter(Boolean).join(' ');return r.data.ip+(geo?' · '+geo:'');}},
+];
+$('browserProbeBtn').onclick=async()=>{
+  const btn=$('browserProbeBtn'),st=$('browserProbeStatus');
+  btn.disabled=true;st.textContent='探测中...';st.className='sub formStatus';
+  const results=await Promise.all(BROWSER_PROBES.map(async p=>{
+    try{const j=await fetch(p.url,{cache:'no-store'}).then(r=>r.json());return [p.name,p.parse(j)||'？'];}
+    catch(e){return [p.name,'失败：'+e.message];}
+  }));
+  setRows('browserProbeTable',results);
+  st.textContent='完成（两行 IP 不同 → 分流生效）';
+  st.className='sub formStatus ok';
+  btn.disabled=false;
+};
+async function pollStatus(){
+  if($('dashboard').hidden)return;
+  try{await refresh();}catch(err){$('refreshState').textContent='检测失败';}
+  pollTimer=setTimeout(pollStatus,5000);
+}
+fetch('/api/auth/session',{cache:'no-store',credentials:'same-origin'}).then(r=>r.json()).then(session=>{
+  if(session.authenticated&&session.csrf)showDashboard(session.csrf);else showLogin();
+}).catch(()=>showLogin('无法连接到管理服务'));
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+name: Dependency Security
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "30 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+
+jobs:
+  rustsec:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: 检出依赖锁文件
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: 安装锁定的 RustSec 审计工具
+        run: cargo install cargo-audit --version 0.22.2 --locked
+      - name: 拒绝漏洞、不安全、未维护和 yanked 依赖
+        run: cargo audit --deny warnings
+
+  osv-pr:
+    if: github.event_name == 'pull_request'
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
+    with:
+      scan-args: |-
+        --lockfile=./Cargo.lock
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+  osv-full:
+    if: github.event_name != 'pull_request'
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
+    with:
+      scan-args: |-
+        --lockfile=./Cargo.lock
+    permissions:
+      contents: read
+      actions: read
+      security-events: write

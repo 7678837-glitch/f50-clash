@@ -1,0 +1,37 @@
+name: 功能建议
+description: 提议与 F50/MU300 管理直接相关、具备明确使用场景的改进
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 要解决的问题
+      description: 描述实际使用场景、当前阻碍和受影响用户，不要只写方案名称。
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议行为
+      description: 说明输入、输出、失败行为和是否涉及 iptables、配置迁移或新依赖。
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 可验证的验收标准
+      placeholder: |
+        - [ ] 给定 ... 时，返回 ...
+        - [ ] F50 重启后 ...
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: 范围确认
+      options:
+        - label: 此建议直接服务于 ZTE F50 / MU300，而不是通用路由器框架。
+          required: true
+        - label: 内容不含凭据、设备标识或私有网络信息。
+          required: true

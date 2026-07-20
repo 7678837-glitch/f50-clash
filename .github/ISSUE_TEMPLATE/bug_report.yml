@@ -1,0 +1,67 @@
+name: 故障报告
+description: 报告可复现的 F50/MU300 运行、安装、网络或面板问题
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        安全漏洞请按 SECURITY.md 私下报告。提交前删除 IMEI、ICCID、IMSI、手机号、订阅 URL、节点、EasyTier 密钥和公网地址。
+  - type: dropdown
+    id: device
+    attributes:
+      label: 设备型号
+      options:
+        - ZTE F50
+        - ZTE MU300
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: 固件与 Android 版本
+      placeholder: 例如 Android 13；固件版本请去除设备标识
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: f50mgr 版本与提交
+      description: 可从 /health 或 magisk module.prop 获取
+      placeholder: 例如 20260718.1 / abcdef123456
+    validations:
+      required: true
+  - type: textarea
+    id: symptoms
+    attributes:
+      label: 现象与影响
+      description: 写清预期结果、实际结果、是否影响设备联网或回滚。
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 最小复现步骤
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 已脱敏证据
+      description: 只贴必要的 /health、/api/status 字段或日志片段，并说明如何脱敏。
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 提交确认
+      options:
+        - label: 我已确认这不是应私下报告的安全漏洞。
+          required: true
+        - label: 我已删除设备标识、凭据、订阅和网络隐私信息。
+          required: true
+        - label: 我使用的是 ZTE F50 或 MU300，并搜索过已有 Issue。
+          required: true
