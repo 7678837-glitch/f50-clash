@@ -179,14 +179,14 @@ impl PidFd {
                     };
                 }
             };
-            return match cmdline_matches_binary(&cmdline, bin) {
+            match cmdline_matches_binary(&cmdline, bin) {
                 Some(true) => Ok(Some(process)),
                 Some(false) => Ok(None),
                 None => Err(std::io::Error::new(
                     std::io::ErrorKind::InvalidData,
                     format!("进程 cmdline 无法解析: pid={pid}"),
                 )),
-            };
+            }
         }
 
         #[cfg(not(any(target_os = "android", target_os = "linux")))]
@@ -212,11 +212,11 @@ impl PidFd {
                     0_u32,
                 )
             };
-            return if result == 0 {
+            if result == 0 {
                 Ok(())
             } else {
                 Err(std::io::Error::last_os_error())
-            };
+            }
         }
 
         #[cfg(not(any(target_os = "android", target_os = "linux")))]
