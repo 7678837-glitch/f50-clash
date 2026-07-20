@@ -949,12 +949,12 @@ mod tests {
         let starts = test_env.root.join("starts");
         write_script(
             &test_env.paths.mihomo_bin,
-            &format!("#!/bin/sh\nprintf o >> {}\nexec sleep 30\n", sh_quote(&starts)),
+            &format!("#!/bin/bash\nprintf o >> {}\nexec -a \"$0\" sleep 30\n", sh_quote(&starts)),
         )?;
         let candidate = test_env.root.join("mihomo.candidate");
         write_script(
             &candidate,
-            &format!("#!/bin/sh\nprintf n >> {}\nexec sleep 30\n", sh_quote(&starts)),
+            &format!("#!/bin/bash\nprintf n >> {}\nexec -a \"$0\" sleep 30\n", sh_quote(&starts)),
         )?;
         let prepared = crate::update::PreparedUpdate {
             candidate_path: candidate,
@@ -1052,7 +1052,7 @@ mod tests {
         let starts = test_env.root.join("starts");
         write_script(
             &test_env.paths.mihomo_bin,
-            &format!("#!/bin/sh\nprintf x >> {}\nexec sleep 30\n", sh_quote(&starts)),
+            &format!("#!/bin/bash\nprintf x >> {}\nexec -a \"$0\" sleep 30\n", sh_quote(&starts)),
         )?;
 
         let (tx, mut rx) = watch::channel(false);
@@ -1099,7 +1099,7 @@ mod tests {
         let starts = test_env.root.join("starts");
         write_script(
             &test_env.paths.mihomo_bin,
-            &format!("#!/bin/sh\nprintf x >> {}\nexec sleep 30\n", sh_quote(&starts)),
+            &format!("#!/bin/bash\nprintf x >> {}\nexec -a \"$0\" sleep 30\n", sh_quote(&starts)),
         )?;
 
         let (tx, mut rx) = watch::channel(false);
@@ -1133,7 +1133,7 @@ mod tests {
         let test_env = test_env("logfile")?;
         write_script(
             &test_env.paths.mihomo_bin,
-            "#!/bin/sh\necho hello-from-mihomo\nexec sleep 30\n",
+            "#!/bin/bash\necho hello-from-mihomo\nexec -a \"$0\" sleep 30\n",
         )?;
 
         let (tx, mut rx) = watch::channel(false);
@@ -1224,8 +1224,7 @@ mod tests {
         write_script(
             &test_env.paths.mihomo_bin,
             &format!(
-                "#!/bin/sh\nprintf start >> {}\ntrap \"printf term >> {}; exit 0\" TERM\nwhile :; do sleep 0.05; done\n",
-                sh_quote(&events),
+                "#!/bin/bash\nexec -a \"$0\" bash -c 'printf start >> \"$1\"; trap \"printf term >> \\\"$1\\\"; exit 0\" TERM; while :; do sleep 0.05; done' _ {}\n",
                 sh_quote(&events)
             ),
         )?;
